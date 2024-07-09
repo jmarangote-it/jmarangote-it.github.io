@@ -5,8 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
                 entry.target.classList.add('animate');
-            } else {
-                entry.target.classList.remove('animate');
+                observer.unobserve(entry.target);
             }
         });
     }, { threshold: 0.1 });
