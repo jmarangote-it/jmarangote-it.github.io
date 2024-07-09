@@ -1,0 +1,892 @@
+Project
+
+
+Introduction
+
+The purpose of this data analysis project is to find the best locations to invest. We will look for certain criteria like relatively low but fast growing population, good city classification or income classification, and a low or decreasing poverty population.
+
+
+Goals
+Learn which regions and provinces are prosperous and best to invest
+Criteria
+- Their cities' classification and income classification based on government criteria
+- Their population growth
+- municipalities eligible to become a city
+	- did they already reached the population quota?
+- Count the HUC in each region
+	- include municipalities that earns the same income as an HUC
+- Services spending
+
+For comparison, list and rank NCR cities/municipalities.
+
+
+Constraints
+- The available data only shows the cap
+- It doesn't account for the frequency of natural disasters like floods or earthquakes, or the topography of the locations
+- It doesn't consider the proximity to a city or urbanized baranggay, from the same region/province or a neighboring one
+
+
+Data Collection
+
+Most of the data collected comes from the Philippines Statistics Authority (PSA). The income classification and SRE (Statement of Receipts and Expenditures) comes from the Bureau of Local Government Finance (BLGF).
+For more details, see Sources.
+
+
+Important attribute notes
+
+	PSGC (Philippine Standard Geographic Code) was now updated to a 10-Digit code; The province code was upgraded to take 3 characters. HUCs (Highly Urbanized Cities) usually don't have municipal/city codes.
+	
+		XX XXX XX XXX (Region Code: 2) (Province Code/HUC: 3) (Municipal/City code: 2) (Barangay Code: 3)
+		Example:
+		07 022 43 020 (07 is Central Visayas) (022 is Cebu Province) (43 is Municipal of San Remigio) (020 is Barangay Poblacion)
+	
+	Geographic Levels
+	
+		Region (Reg)
+		Province (Prov)
+		Municipality (Mun)
+		City (City)
+			- According to the RA Code 7160 Book III Title III Chapter I, a city is transformed from a municipality or a cluster of barangays
+				- must have an average annual income of 20,000,000 for the last 2 consecutive years based on 1991 constant prices and if it has either of the ff requisites:
+					a) a contiguous territory of at least one hundred (100) square kilometers
+						- island(s) are excempted of this requirement
+					b) a population of not less than one hundred fifty thousand (150,000) inhabitants
+				- The average annual income shall include the income accruing to the general fund, exclusive of specific funds, transfers, and non-recurring income.
+			- Memorandum circular No. 013-2020 (Updated Annual CPI Factors for Computation and Certification of LGU Jncome Pursuant to DO No. 031.2018) updates the creation of cities to use 2000 CPI factors in computing the average annual income
+		Barangay (Bgy)
+		Sub-Municipality (SubMun)
+			- "Barangays" in cities that have barangays of their own
+		Special Government Unit (SGU)
+			- Used before to group barangays in special locations
+			- currently disused
+		District (Dist)
+			- Used when parts of Metro Manila was separated by districts
+			- currently disused
+
+	City Classes (HUC, ICC, CC)
+		
+		Highly Urbanized Cities
+			- Cities with a minimum population of two hundred thousand (200,000) inhabitants, as certified by the National Statistics Office, and with the latest annual income of at least Fifty Million Pesos (P50,000,000.00) based on 1991 constant prices, as certified by the city treasurer.
+		Independent Component Cities
+			-  Cities whose charters prohibit their voters from voting for provincial elective officials. Independent component cities shall be independent of the province.
+		Component Cities
+			- Cities which do not meet the above requirements shall be considered component cities of the province in which they are geographically located. If a component city is located within the boundaries of two (2) or more provinces, such city shall be considered a component of the province of which it used to be a municipality.
+	
+	Income Classification
+		- dependent on the Geographic Level
+		- Only for Provinces, Cities and Municipalities
+		- Some cities' classification are classified as Municipality
+		- Info about the income classification is better in BLGF because they update their data every year
+			
+		I. Provinces:	
+		Class:	Average Annual Income
+		1st	P 450M or more
+		2nd	P 360M or more but less than P 450M
+		3rd	P 270M or more but less than P 360M
+		4th	P 180M or more but less than P 270M
+		5th	P 90M or more but less than P 180M
+		6th	Below P 90M
+			
+		II. Cities	
+		Class:	Average Annual Income
+		1st	P 400M or more
+		2nd	P 320M or more but less than P 400M
+		3rd	P 240M or more but less than P 320M
+		4th	P 160M or more but less than P 240M
+		5th	P 80M or more but less than P 160M
+		6th	Below P 80M
+			
+		III. Municipalities	
+		Class:	Average Annual Income
+		1st	P 55M or more
+		2nd	P 45M or more but less than P 55M
+		3rd	P 35M or more but less than P 45M
+		4th	P 25M or more but less than P 35M
+		5th	P 15M or more but less than P 25M
+		6th	Below P 15M
+		
+		Based on Department of Finance (DOF) Department Order No. 23-08, July 29, 2008
+		(Will probably get updated in the future)
+		*  = not reclassified under Department Order No. 23-08 due to incomplete income data	
+		-  = newly-created municipalities not re-classified	
+			
+		Province Income Class was updated as of May 2015	
+		City Income Class was updated as of June 2018	
+		Municipality Income Class was updated as of April 2016
+		
+		Statement of Receipts and Expenditures
+		- 0 entries may be unrecorded entries
+		- Data type should be Decimal(18,2)
+		
+			+ Current Operating Income
+				+ Local Sources
+					+ Tax Revenue
+						+ Real Property Tax
+							General Fund
+							Special Education Fund
+							= Total Real Property Tax
+						+ Tax on Business
+						+ Other Taxes
+						= Total Tax Revenue
+					+ Non-Tax Revenue
+						Regulatory Fees
+						Service/User Charges
+						Receipts From Economic Enterprises
+						Other Receipts
+						= Total Non-Tax Revenue
+					= Total Local Sources
+				+ External Sources
+					National Tax Allotment
+					Other Shares from National Tax Collection
+					Inter-Local Transfers
+					Extraordinary Receipts/Grants/Donations/Aids
+					= Total External Sources
+				= Total Current Operating Income
+			- Total Current Operating Expenditures
+				+ General Public Service
+				+ Social Services
+					Education, Culture & Sports / Manpower Development
+					Health, Nutrition & Population Control 
+					Labor and Employment
+					Housing and Community Development
+					Social Services and Social Welfare
+					= Total Social Services
+				+ Economic Services
+				+ Debt Service (Interest Expense & Other Charges)
+				= Total Current Operating Expenditures
+			= Net Operating Income / (Loss) From Current Operations
+			
+			+ Non-Income Receipts
+				+ Capital / Investment Receipts
+					Proceeds from Sale of Assets
+					Proceeds from Sale of Debt Securities of Other Entities
+					Collection of Loans Receivables
+					= Total Capital / Investment Receipts
+				+ Receipts From Loans and Borrowings
+					Acquisition of Loans
+					Issuance of Bonds
+					= Total Receipts From Loans and Borrowings
+				+ Other Non-Income Receipts
+				= Total Non-Income Receipts
+
+			- Non-Operating Expenditures
+				+ Capital / Investment Expenditures
+					Purchase/Construct of Property Plant and Equipment  (Assets/Capital Outlay)
+					Purchase of Debt Securities of Other Entities (Investment Outlay)
+					Grant / Make Loan to Other Entities (Investment Outlay)
+					= Total Capital / Investment Expenditures
+				+ Debt Service (Principal Cost)
+					Payment of Loan Amortization
+					Retirement / Redemption of Bonds / Debt Securities
+					= Total Debt Service (Principal Cost)
+				+ Other Non-Operating Expenditures
+				= Total Non-Operating Expenditures
+			
+			= Net Increase / (Decrease) in Funds
+			
+			+ Add: Cash Balance, Beginning
+			
+			= Fund / Cash Available
+			
+			- Less: Payment of Prior Year/s Accounts Payable
+			
+			- Continuing Appropriation
+			
+			= Fund / Cash Balance, End
+		
+	Status
+		Capital
+		Poblacion (Pob)
+
+
+Attributes in the raw dataset and their ideal data type
+
+	psgc varchar(10) PRIMARY KEY
+		- Some entries have NULL PSGC codes; those entries need to be separated
+	location_name varchar(100)
+		- Incase of long entries
+	correspondence_code varchar(9)
+	geo_level varchar(10)
+		- only values are Bgy, SGU, NULL, Mun, City, Reg, Dist, SubMun, Prov
+	Old_Name varchar(MAX)
+		- In case a Location is renamed multiple times
+	City_Class varchar(10)
+		- only contains ICC, NULL, CC, HUC
+	Income_Class varchar(20)
+		- The additional space is for the comments
+		- values are [1st-6th],[1st*-6th*], 1st* (reclass 2005), 1st (as Mun), Special, -, NULL
+	Urban_Rural varchar(1)
+		- only applies to Barangays
+		- values are NULL, -, R, U
+	Population Int
+		- repeating group / have to create multiple rows for different years or the table will break 1st form of normalization
+		- some have string comments in the old datasource; moved the comments in the spreadsheet
+		- some entries are '0' or '-'; need to be set as null
+	Population_Comment varchar(MAX)
+		- some contains long comments
+
+
+Cleanup and database normalization
+
+prdp_locations
+	psgc varchar(10),
+	location_name varchar(100),
+	geo_level varchar(10),
+	PRIMARY KEY(psgc)
+
+prdp_correspondence_code
+	correspondence_code varchar(9) NOT NULL,
+	psgc varchar(10),
+	FOREIGN KEY (psgc) REFERENCES prdp_locations(psgc)
+
+prdp_income_class
+	psgc varchar(10),
+	income_class varchar(50),
+	FOREIGN KEY (psgc) REFERENCES prdp_locations(psgc)
+
+prdp_city_class
+	psgc varchar(10),
+	city_class varchar(5),
+	FOREIGN KEY (psgc) REFERENCES prdp_locations(psgc)
+
+prdp_location_old_name
+	psgc varchar(10),
+	location_old_name varchar(MAX),
+	FOREIGN KEY (psgc) REFERENCES prdp_locations(psgc)
+	
+prdp_urban_rural_bgy
+	psgc varchar(10),
+	urban_rural_bgy varchar(1),
+	FOREIGN KEY (psgc) REFERENCES prdp_locations(psgc)
+
+prdp_population
+	psgc varchar(10),
+	census_year INT,
+	population_count INT,
+	PRIMARY KEY (psgc, census_year),
+	FOREIGN KEY (psgc) REFERENCES prdp_locations(psgc)
+
+prdp_population_comments
+	psgc varchar(10),
+	census_year INT,
+	population_comment varchar(MAX),
+	FOREIGN KEY (psgc, census_year) REFERENCES prdp_population(psgc, census_year)
+
+
+Sources:
+	Main dataset:
+		https://psa.gov.ph/classification/psgc
+		
+		2020 population
+		https://psa.gov.ph/system/files/scd/PSGC-April-2024-Publication-Datafile.xlsx
+		
+		2015 population
+		https://psa.gov.ph/system/files/scd/PSGC-3Q-2023-Publication-Datafile.xlsx
+		
+		Statement of Receipts and Expenditures (SRE)
+		https://blgf.gov.ph/wp-content/uploads/2024/05/SRE-FY2023-Q4.xlsx
+
+	Reference:
+		City Classifications
+		https://web.archive.org/web/20120913020317/http://www.nscb.gov.ph/activestats/psgc/articles/con_cityclass.asp
+
+		Income Class of Cities/Provinces/Municipalities
+		https://blgf.gov.ph/lgu-income-class/
+		https://blgf.gov.ph/wp-content/uploads/2021/01/updatedreclass_cities.pdf
+		https://blgf.gov.ph/wp-content/uploads/2021/01/updated-reclassification-Province.pdf
+		https://blgf.gov.ph/wp-content/uploads/2021/01/updated-reclass-CY-2008-4-27-16.pdf
+		
+		The use of 1991 CPI factors for the creation of a city
+		Eigth Congress Republic Act No. 7160
+		https://lawphil.net/statutes/repacts/ra1991/ra_7160_1991.html
+		
+		Memorandum-Circular-No-013-2020 (The use of 2000 CPI factors for the creation of a city)
+		https://law.upd.edu.ph/wp-content/uploads/2020/09/BLGF-Memorandum-Circular-No-013-2020.pdf
+		
+		Income Classification
+
+
+Codes / Queries
+
+NOTES:
+	- Before applying the code/query, make sure that the source table has the correct information.
+	(eg. Mahaplag and Matag-Ob shares the same psgc (0803731000) in the dataset, but according to the PSA website, Matag-Ob should be 0803733000)
+	- For visualization, it is recommended to replace the comments code in excel/openoffice before importing it to the database
+	
+	- The main spreadsheet will be the latest psgc to exclude dropped entries
+	-- Some locations like 'Guintolan', 'Panicupan', 'Macabual', 'Dunguan' in the 2015 dataset have new psgc, and there will be an error regarding primary keys when inserted into a table. Change the psgc of these entries before adding them to the population table
+	-- ALWAYS check first if the new psgc doesn't exist in the old dataset or the psgc will not be unique
+
+	
+-- (1) Updating the 2015 prdp dataset (psgc_2015) --
+
+
+-- check if there are psgc changes in the old dataset
+SELECT
+	PSGC,
+	Location_Name
+FROM
+	psgc_2015
+WHERE PSGC NOT IN (SELECT PSGC FROM psgc_2020)
+
+-- find the new osgc of the locations
+SELECT
+	PSGC,
+	Location_Name
+FROM
+	psgc_2020
+WHERE
+	Location_Name = 'Guintolan'
+	OR Location_Name = 'Panicupan'
+	OR Location_Name = 'Macabual'
+	OR Location_Name = 'Dunguan'
+
+-- check if the psgc doesn't exist in the old dataset
+SELECT
+	PSGC
+FROM
+	psgc_2015
+WHERE
+	PSGC = '0908304019'
+	OR PSGC = '1999904007'
+	OR PSGC = '1999908009'
+	OR PSGC = '1999908010'
+
+-- update the old dataset
+-- For Guintolan
+UPDATE psgc_2015
+SET psgc = '0908304019'
+WHERE psgc = '0908311008'
+-- For Dunguan
+UPDATE psgc_2015
+SET psgc = '1999904007'
+WHERE psgc = '1999908003'
+-- For Macabual
+UPDATE psgc_2015
+SET psgc = '1999908009'
+WHERE psgc = '1999907007'
+-- For Panicupan
+UPDATE psgc_2015
+SET psgc = '1999908010'
+WHERE psgc = '1999906008'
+
+	
+-- (2) Creation and Population of the tables --
+
+
+-- Main table: prdp_locations
+CREATE TABLE prdp_locations (
+	psgc varchar(10),
+	location_name varchar(100),
+	geo_level varchar(10),
+	PRIMARY KEY(psgc)
+);
+-- populate prdp_locations
+INSERT INTO prdp_locations (psgc, location_name, geo_level)
+	SELECT
+		PSGC AS psgc,
+		Location_Name AS location_name,
+		Geo_Level AS geo_level
+	FROM psgc_2020
+WHERE psgc IS NOT NULL;
+
+-- Correspondence_Code table
+CREATE TABLE prdp_correspondence_code (
+	correspondence_code varchar(9) NOT NULL,
+	psgc varchar(10),
+	FOREIGN KEY (psgc) REFERENCES prdp_locations(psgc)
+);
+-- populate prdp_correspondence_code
+INSERT INTO prdp_correspondence_code (correspondence_code, psgc)
+SELECT
+	Correspondence_Code AS correspondence_code,
+	PSGC AS psgc
+FROM psgc_2020
+WHERE
+	Correspondence_Code IS NOT NULL
+
+-- sre_income_class table
+Create TABLE sre_income_class (
+	psgc varchar(10),
+	income_class varchar(50),
+	FOREIGN KEY (psgc) REFERENCES prdp_locations(psgc)
+);
+-- populate sre_income_class
+INSERT INTO sre_income_class (psgc, income_class)
+SELECT
+	psgc,
+	income_class
+FROM sre_2023
+WHERE
+	income_class IS NOT NULL
+	AND PSGC IS NOT NULL
+
+-- prdp_city_class table
+CREATE TABLE prdp_city_class (
+	psgc varchar(10),
+	city_class varchar(5),
+	FOREIGN KEY (psgc) REFERENCES prdp_locations(psgc)
+);
+-- populate prdp_city_class
+INSERT INTO prdp_city_class (psgc, city_class)
+SELECT
+	PSGC AS psgc,
+	City_Class AS city_class
+FROM psgc_2020
+WHERE
+	City_Class IS NOT NULL
+	AND PSGC IS NOT NULL
+
+-- prdp_location_old_name table
+CREATE TABLE prdp_location_old_name (
+	psgc varchar(10),
+	location_old_name varchar(MAX),
+	FOREIGN KEY (psgc) REFERENCES prdp_locations(psgc)
+);
+-- populate prdp_location_old_name
+INSERT INTO prdp_location_old_name (psgc, location_old_name)
+SELECT
+	PSGC AS psgc,
+	Old_Names AS location_old_name
+FROM psgc_2020
+WHERE
+	Old_Names IS NOT NULL
+	AND PSGC IS NOT NULL
+
+-- prdp_urban_rural table
+CREATE TABLE prdp_urban_rural (
+	psgc varchar(10),
+	urban_rural varchar(1),
+	FOREIGN KEY (psgc) REFERENCES prdp_locations(psgc)
+);
+-- populate prdp_urban_rural
+INSERT INTO prdp_urban_rural (psgc, urban_rural)
+SELECT
+	PSGC AS psgc,
+	Urban_Rural AS urban_rural
+FROM psgc_2020
+WHERE
+	Urban_Rural IS NOT NULL
+	AND PSGC IS NOT NULL
+
+-- prdp_population table
+CREATE TABLE prdp_population (
+	psgc varchar(10),
+	census_year INT,
+	population_count INT,
+	PRIMARY KEY (psgc, census_year),
+	FOREIGN KEY (psgc) REFERENCES prdp_locations(psgc)
+)
+-- populate prdp_population
+-- if there is an error, check psgc_2015 dataset; Some locations have updated their psgc and needs to be updated first. Check "Updating the 2015 prdp dataset (psgc_2015)" for more details
+INSERT INTO prdp_population(psgc, census_year, population_count)
+	SELECT
+		PSGC AS psgc,
+		'2015' AS census_year,
+		_2015_Population AS population_count
+	FROM psgc_2015
+	WHERE
+		_2015_Population IS NOT NULL
+		AND PSGC IS NOT NULL
+	UNION
+	SELECT
+		PSGC AS psgc,
+		'2020' AS census_year,
+		_2020_Population AS population_count
+	FROM psgc_2020
+	WHERE
+		_2020_Population IS NOT NULL
+		AND PSGC IS NOT NULL
+	ORDER BY psgc
+
+-- prdp_population_comments table
+CREATE TABLE prdp_population_comments (
+	psgc varchar(10),
+	census_year INT,
+	population_comment varchar(MAX),
+	FOREIGN KEY (psgc, census_year) REFERENCES prdp_population(psgc, census_year)
+);
+-- populate prdp_population_comments
+INSERT INTO prdp_population_comments (psgc, census_year, population_comment)
+	SELECT
+		PSGC AS psgc,
+		'2015' AS census_year,
+		_2015_Population_Comments AS population_comment
+	FROM psgc_2015
+	WHERE
+		_2015_Population_Comments IS NOT NULL
+		AND PSGC IS NOT NULL
+	UNION
+	SELECT
+		PSGC AS psgc,
+		'2020' AS census_year,
+		_2020_Population_Comments AS population_comment
+	FROM psgc_2020
+	WHERE
+		_2020_Population_Comments IS NOT NULL
+		AND PSGC IS NOT NULL
+	ORDER BY psgc
+
+-- statement_of_receipts_and_expenditures table
+CREATE TABLE statement_of_receipts_and_expenditures (
+	psgc varchar(10),
+	census_year INT,
+	current_operating_income_local_tax_real_property_general decimal(18,2),
+	current_operating_income_local_tax_real_property_special_education decimal(18,2),
+	current_operating_income_local_tax_real_property_total decimal(18,2),
+	current_operating_income_local_tax_business decimal(18,2),
+	current_operating_income_local_tax_other decimal(18,2),
+	current_operating_income_local_tax_total decimal(18,2),
+	current_operating_income_local_nontax_regulatory_fees decimal(18,2),
+	current_operating_income_local_nontax_service_user_charges decimal(18,2),
+	current_operating_income_local_nontax_economic_enterprise_receipts decimal(18,2),
+	current_operating_income_local_nontax_other_receipts decimal(18,2),
+	current_operating_income_local_nontax_total decimal(18,2),
+	current_operating_income_local_total decimal(18,2),
+	current_operating_income_external_national_tax_allotment decimal(18,2),
+	current_operating_income_external_national_tax_other_shares decimal(18,2),
+	current_operating_income_external_interlocal_transfers decimal(18,2),
+	current_operating_income_external_extraordinary_donations decimal(18,2),
+	current_operating_income_external_total decimal(18,2),
+	current_operating_income_total decimal(18,2),
+	current_operating_expenditures_general_public_services decimal(18,2),
+	current_operating_expenditures_social_services_manpower_development decimal(18,2),
+	current_operating_expenditures_social_services_health_nutrition_population decimal(18,2),
+	current_operating_expenditures_social_services_labor_employment decimal(18,2),
+	current_operating_expenditures_social_services_housing_community_development decimal(18,2),
+	current_operating_expenditures_social_services_welfare decimal(18,2),
+	current_operating_expenditures_social_services_total decimal(18,2),
+	current_operating_expenditures_economic_services decimal(18,2),
+	current_operating_expenditures_debt_services decimal(18,2),
+	current_operating_expenditures_total decimal(18,2),
+	net_operating_income decimal(18,2),
+	non_income_receipts_capital_investment_asset_sale_proceeds decimal(18,2),
+	non_income_receipts_capital_investment_others_debt_securities_sales_proceeds decimal(18,2),
+	non_income_receipts_capital_investment_loans_receivable_collections decimal(18,2),
+	non_income_receipts_capital_investment_total decimal(18,2),
+	non_income_receipts_loans_borrowings_loans_acquisitions decimal(18,2),
+	non_income_receipts_loans_borrowings_bonds_issuance decimal(18,2),
+	non_income_receipts_loans_borrowings_total decimal(18,2),
+	non_income_receipts_others decimal(18,2),
+	non_income_receipts_total decimal(18,2),
+	nonoperating_expenditures_capital_investment_property_plant_equipment decimal(18,2),
+	nonoperating_expenditures_capital_investment_other_entities_debt_securities decimal(18,2),
+	nonoperating_expenditures_capital_investment_other_entities_grant_loan decimal(18,2),
+	nonoperating_expenditures_capital_investment_total decimal(18,2),
+	nonoperating_expenditures_debt_service_loan_amortization_payment decimal(18,2),
+	nonoperating_expenditures_debt_service_retirement_bonds_redemption_debt_securities decimal(18,2),
+	nonoperating_expenditures_debt_service_total decimal(18,2),
+	nonoperating_expenditures_other decimal(18,2),
+	nonoperating_expenditures_total decimal(18,2),
+	funds_net_increase decimal(18,2),
+	cash_balance_beginning decimal(18,2),
+	fund_available decimal(18,2),
+	accounts_payable_payment_of_prior_years decimal(18,2),
+	continuing_appropriation decimal(18,2),
+	fund_balance decimal(18,2),
+	PRIMARY KEY (psgc, census_year),
+	FOREIGN KEY (psgc) REFERENCES prdp_locations(psgc)
+);
+-- populate statement_of_receipts_and_expenditures
+INSERT INTO statement_of_receipts_and_expenditures (
+	psgc,
+	census_year,
+	current_operating_income_local_tax_real_property_general,
+	current_operating_income_local_tax_real_property_special_education,
+	current_operating_income_local_tax_real_property_total,
+	current_operating_income_local_tax_business,
+	current_operating_income_local_tax_other,
+	current_operating_income_local_tax_total,
+	current_operating_income_local_nontax_regulatory_fees,
+	current_operating_income_local_nontax_service_user_charges,
+	current_operating_income_local_nontax_economic_enterprise_receipts,
+	current_operating_income_local_nontax_other_receipts,
+	current_operating_income_local_nontax_total,
+	current_operating_income_local_total,
+	current_operating_income_external_national_tax_allotment,
+	current_operating_income_external_national_tax_other_shares,
+	current_operating_income_external_interlocal_transfers,
+	current_operating_income_external_extraordinary_donations,
+	current_operating_income_external_total,
+	current_operating_income_total,
+	current_operating_expenditures_general_public_services,
+	current_operating_expenditures_social_services_manpower_development,
+	current_operating_expenditures_social_services_health_nutrition_population,
+	current_operating_expenditures_social_services_labor_employment,
+	current_operating_expenditures_social_services_housing_community_development,
+	current_operating_expenditures_social_services_welfare,
+	current_operating_expenditures_social_services_total,
+	current_operating_expenditures_economic_services,
+	current_operating_expenditures_debt_services,
+	current_operating_expenditures_total,
+	net_operating_income,
+	non_income_receipts_capital_investment_asset_sale_proceeds,
+	non_income_receipts_capital_investment_others_debt_securities_sales_proceeds,
+	non_income_receipts_capital_investment_loans_receivable_collections,
+	non_income_receipts_capital_investment_total,
+	non_income_receipts_loans_borrowings_loans_acquisitions,
+	non_income_receipts_loans_borrowings_bonds_issuance,
+	non_income_receipts_loans_borrowings_total,
+	non_income_receipts_others,
+	non_income_receipts_total,
+	nonoperating_expenditures_capital_investment_property_plant_equipment,
+	nonoperating_expenditures_capital_investment_other_entities_debt_securities,
+	nonoperating_expenditures_capital_investment_other_entities_grant_loan,
+	nonoperating_expenditures_capital_investment_total,
+	nonoperating_expenditures_debt_service_loan_amortization_payment,
+	nonoperating_expenditures_debt_service_retirement_bonds_redemption_debt_securities,
+	nonoperating_expenditures_debt_service_total,
+	nonoperating_expenditures_other,
+	nonoperating_expenditures_total,
+	funds_net_increase,
+	cash_balance_beginning,
+	fund_available,
+	accounts_payable_payment_of_prior_years,
+	continuing_appropriation,
+	fund_balance
+)
+SELECT
+	psgc,
+	'2023' AS census_year,
+	current_operating_income_local_tax_real_property_general,
+	current_operating_income_local_tax_real_property_special_education,
+	current_operating_income_local_tax_real_property_total,
+	current_operating_income_local_tax_business,
+	current_operating_income_local_tax_other,
+	current_operating_income_local_tax_total,
+	current_operating_income_local_nontax_regulatory_fees,
+	current_operating_income_local_nontax_service_user_charges,
+	current_operating_income_local_nontax_economic_enterprise_receipts,
+	current_operating_income_local_nontax_other_receipts,
+	current_operating_income_local_nontax_total,
+	current_operating_income_local_total,
+	current_operating_income_external_national_tax_allotment,
+	current_operating_income_external_national_tax_other_shares,
+	current_operating_income_external_interlocal_transfers,
+	current_operating_income_external_extraordinary_donations,
+	current_operating_income_external_total,
+	current_operating_income_total,
+	current_operating_expenditures_general_public_services,
+	current_operating_expenditures_social_services_manpower_development,
+	current_operating_expenditures_social_services_health_nutrition_population,
+	current_operating_expenditures_social_services_labor_employment,
+	current_operating_expenditures_social_services_housing_community_development,
+	current_operating_expenditures_social_services_welfare,
+	current_operating_expenditures_social_services_total,
+	current_operating_expenditures_economic_services,
+	current_operating_expenditures_debt_services,
+	current_operating_expenditures_total,
+	net_operating_income,
+	non_income_receipts_capital_investment_asset_sale_proceeds,
+	non_income_receipts_capital_investment_others_debt_securities_sales_proceeds,
+	non_income_receipts_capital_investment_loans_receivable_collections,
+	non_income_receipts_capital_investment_total,
+	non_income_receipts_loans_borrowings_loans_acquisitions,
+	non_income_receipts_loans_borrowings_bonds_issuance,
+	non_income_receipts_loans_borrowings_total,
+	non_income_receipts_others,
+	non_income_receipts_total,
+	nonoperating_expenditures_capital_investment_property_plant_equipment,
+	nonoperating_expenditures_capital_investment_other_entities_debt_securities,
+	nonoperating_expenditures_capital_investment_other_entities_grant_loan,
+	nonoperating_expenditures_capital_investment_total,
+	nonoperating_expenditures_debt_service_loan_amortization_payment,
+	nonoperating_expenditures_debt_service_retirement_bonds_redemption_debt_securities,
+	nonoperating_expenditures_debt_service_total,
+	nonoperating_expenditures_other,
+	nonoperating_expenditures_total,
+	funds_net_increase,
+	cash_balance_beginning,
+	fund_available,
+	accounts_payable_payment_of_prior_years,
+	continuing_appropriation,
+	fund_balance
+FROM
+	sre_2023
+ORDER BY
+	psgc
+
+
+-- (3) Data Exploration --
+
+
+-- Ranking NCR Cities/Municipalities
+SELECT
+	prdp_locations.psgc,
+	prdp_locations.location_name,
+	prdp_locations.geo_level,
+	sre_income_class.income_class,
+	FORMAT(prdp_population.population_count,'N0') AS population_count,
+	FORMAT(sre.current_operating_income_total, 'C', 'EN-PH') AS total_operating_income,
+	FORMAT(sre.current_operating_expenditures_total, 'C', 'EN-PH') AS total_operating_expenditures,
+	FORMAT(sre.fund_balance, 'C', 'EN-PH') AS fund_balance
+FROM
+	PortfolioProject.dbo.prdp_locations AS prdp_locations
+JOIN
+	PortfolioProject.dbo.prdp_population AS prdp_population
+ON
+	prdp_locations.psgc = prdp_population.psgc
+JOIN
+	PortfolioProject.dbo.sre_income_class AS sre_income_class
+ON
+	prdp_locations.psgc = sre_income_class.psgc
+JOIN
+	PortfolioProject.dbo.statement_of_receipts_and_expenditures AS sre
+ON
+	prdp_locations.psgc = sre.psgc
+WHERE
+	prdp_locations.psgc LIKE '13%' --includes all NCR
+	AND (prdp_locations.geo_level = 'City' OR prdp_locations.geo_level = 'Special' OR prdp_locations.geo_level = 'Mun')
+	AND prdp_population.census_year = 2020
+ORDER BY
+	sre.current_operating_income_total DESC
+
+
+-- Counts High Earning Cities in each regions
+SELECT
+	prdp_locations.location_name AS Region_Name,
+	COUNT (*) AS High_Earning_Cities,
+	COUNT(CASE WHEN prdp_city_class.city_class = 'HUC' THEN 1 END) AS HUC,
+	COUNT(CASE WHEN prdp_city_class.city_class = 'ICC' THEN 1 END) AS ICC,
+	COUNT(CASE WHEN prdp_city_class.city_class = 'CC' THEN 1 END) AS CC
+FROM
+	-- this 'table' will only include 'Reg' entries
+	-- the 'City' entries will be included in another JOIN
+	PortfolioProject.dbo.prdp_locations AS prdp_locations
+JOIN
+	PortfolioProject.dbo.sre_income_class AS sre_income_class
+ON
+	prdp_locations.psgc = CONCAT(SUBSTRING(sre_income_class.psgc, 1, 2), '00000000')
+	-- link prdp_locations with the 'region' entries, and sre_income_class with all the entries
+JOIN
+	-- Because prdp_locations is filtered and the only contains entries with 'Reg' geo_level, we need another JOIN
+	-- First, we need to link a new prdp_locations, rename it as prdp_geo_level, and link it with sre_income_class
+	-- renaming is important because it will be filtered and should only contain 'City' geo_levels
+	-- if we use the same name of the main table, both tables will only contain 'City'; 'Reg' entries will be removed
+	PortfolioProject.dbo.prdp_locations AS prdp_geo_level
+ON
+	sre_income_class.psgc = prdp_geo_level.psgc
+	-- This will link all the sre_income_class with prdp_geo_level
+	-- It will also include 'Reg' entries and we will have to filter prdp_geo_level in WHERE to only include 'City' geo_level
+JOIN
+	PortfolioProject.dbo.prdp_city_class AS prdp_city_class
+ON
+	prdp_geo_level.psgc = prdp_city_class.psgc
+WHERE
+-- set the parameters that are considered as 'high-earning'
+	(
+	sre_income_class.income_class = 'special'
+	OR sre_income_class.income_class LIKE '1st%'
+	OR sre_income_class.income_class LIKE '2nd%'
+	OR sre_income_class.income_class LIKE '3rd%'
+	)
+	AND sre_income_class.income_class NOT LIKE '%as Mun%'
+	AND prdp_geo_level.geo_level = 'City' -- filtering the 3rd table to only include entries with 'City' geo_level
+GROUP BY
+	SUBSTRING(prdp_locations.psgc,1,2),
+	prdp_locations.location_name
+ORDER BY
+	High_Earning_Cities DESC
+
+
+-- Count Cities and municipalities that earns the same income requirement to become HUC
+-- HUC income requirement is 50,000,000 pesos based on 1991 constant prices
+-- Assuming that the CPI in 2023 is 130 and the CPI in 1991 is 32, the adjusted required income to become a city is approximately 203,000,000 pesos
+SELECT
+	prdp_locations.location_name AS Region_Name,
+	COUNT(*) AS earns_as_HUC,
+	COUNT(CASE WHEN prdp_geo_level.geo_level = 'City' THEN 1 END) AS city,
+	COUNT(CASE WHEN prdp_geo_level.geo_level = 'Mun' THEN 1 END) AS municipality
+FROM
+	PortfolioProject.dbo.prdp_locations AS prdp_locations
+	-- this main table will only include 'region' entries
+JOIN
+	PortfolioProject.dbo.statement_of_receipts_and_expenditures AS sre
+ON
+	prdp_locations.psgc = CONCAT(SUBSTRING(sre.psgc, 1, 2), '00000000')
+	-- link the 'region' entries with sre entries
+JOIN
+	-- because the main table only contain region_entries, we will need to add another prdp_locations as a 3rd table
+	PortfolioProject.dbo.prdp_locations AS prdp_geo_level
+ON
+	-- and link the '3rd' table with the 2nd table
+	-- the '3rd' table will include 'province' entries and those entries need to be filtered out
+	prdp_geo_level.psgc = sre.psgc
+WHERE
+	prdp_geo_level.geo_level <> 'Prov' -- filters the '3rd' table 
+	AND sre.current_operating_income_local_total >= 203000000
+GROUP BY
+	SUBSTRING(prdp_locations.psgc,1,2),
+	prdp_locations.location_name
+ORDER BY
+	earns_as_HUC DESC
+	
+
+-- Find municipalities that has enough income to become a city (20,000,000 pesos based on 1991 constant prices)
+-- Assuming that the CPI in 2023 is 130 and the CPI in 2000 is 32, the adjusted required income to become a city is approximately 81,200,000
+-- population required to become a city is 150,000 or more
+
+SELECT
+	prdp_locations.psgc,
+	prdp_region.location_name AS region,
+	prdp_province.location_name AS province,
+	prdp_locations.location_name,
+	FORMAT(prdp_population.population_count,'N0') AS population_count,
+	(CASE WHEN prdp_population.population_count >= 150000 THEN 'True' ELSE 'False' END) AS population_reached,
+	FORMAT(sre.current_operating_income_local_total, 'C', 'EN-PH') AS local_income,
+	FORMAT(sre.current_operating_income_external_national_tax_allotment, 'C', 'EN-PH') AS national_tax_allotment,
+	FORMAT(sre.Current_Operating_Income_Total, 'C', 'EN-PH') AS total_operating_income,
+	FORMAT(sre.current_operating_expenditures_total, 'C', 'EN-PH') AS total_operating_expenditures,
+	FORMAT(sre.fund_balance, 'C', 'en-PH') AS fund_balance
+FROM
+	PortfolioProject.dbo.prdp_locations AS prdp_locations
+JOIN
+	PortfolioProject.dbo.statement_of_receipts_and_expenditures AS sre
+ON
+	prdp_locations.psgc = sre.psgc
+JOIN
+	PortfolioProject.dbo.prdp_locations AS prdp_region
+ON
+	prdp_region.psgc = CONCAT(SUBSTRING(prdp_locations.psgc, 1, 2), '00000000')
+JOIN
+	PortfolioProject.dbo.prdp_locations AS prdp_province
+ON
+	prdp_province.psgc = CONCAT(SUBSTRING(prdp_locations.psgc, 1, 5), '00000')
+JOIN
+	PortfolioProject.dbo.prdp_population AS prdp_population
+ON
+	prdp_locations.psgc = prdp_population.psgc
+WHERE
+	prdp_locations.geo_level = 'Mun'
+	AND sre.current_operating_income_local_total >= 81200000
+	AND prdp_population.census_year = 2020
+ORDER BY
+	population_reached,
+	prdp_locations.psgc
+
+
+-- which cities/municipalities spends a lot on services
+
+SELECT
+	prdp_locations.location_name,
+	prdp_locations.geo_level,
+	FORMAT(sre.current_operating_expenditures_total, 'C', 'EN-PH') AS total_operating_expenditures,
+	FORMAT(sre.current_operating_expenditures_general_public_services, 'C', 'EN-PH') AS general_public_services,
+	FORMAT(sre.current_operating_expenditures_economic_services, 'C', 'EN-PH') AS economic_services,
+	FORMAT(sre.current_operating_expenditures_debt_services, 'C', 'EN-PH') AS debt_services,
+	FORMAT(sre.current_operating_expenditures_social_services_total, 'C', 'EN-PH') AS total_social_services,
+	FORMAT(sre.current_operating_expenditures_social_services_manpower_development, 'C', 'EN-PH') AS manpower_development,
+	FORMAT(sre.current_operating_expenditures_social_services_health_nutrition_population, 'C', 'EN-PH') AS health_nutrition_population,
+	FORMAT(sre.current_operating_expenditures_social_services_labor_employment, 'C', 'EN-PH') AS labor_employment,
+	FORMAT(sre.current_operating_expenditures_social_services_housing_community_development, 'C', 'EN-PH') AS housing_community_development,
+	FORMAT(sre.current_operating_expenditures_social_services_welfare, 'C', 'EN-PH') AS welfare
+FROM
+	PortfolioProject.dbo.prdp_locations AS prdp_locations
+JOIN
+	PortfolioProject.dbo.statement_of_receipts_and_expenditures AS sre
+ON
+	sre.psgc = prdp_locations.psgc
+WHERE
+	prdp_locations.geo_level = 'City' OR prdp_locations.geo_level = 'Mun'
+ORDER BY
+	sre.current_operating_expenditures_total DESC
