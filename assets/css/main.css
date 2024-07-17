@@ -160,6 +160,20 @@ a:hover { color: #9ee5ff; }
     padding: 10px;
 }
 
+#main > div > header a {
+	cursor: pointer;
+	transition: filter 0.1s ease;
+}
+
+#main > div > header a:hover{
+    filter: invert(51%) sepia(45%) saturate(2760%) hue-rotate(166deg) brightness(100%) contrast(99%);
+}
+
+#main > div > header img{
+    height: 1.2em;
+    width: auto;
+}
+
 #main > svg {
     margin: 0px;
     padding: 0px;
@@ -331,4 +345,9 @@ footer > svg {
 
 #contact > div > p > a:hover{
     filter: invert(51%) sepia(45%) saturate(2760%) hue-rotate(166deg) brightness(100%) contrast(99%);
+}
+
+#contact img{
+    height: 1.2em;
+    width: auto;
 }
