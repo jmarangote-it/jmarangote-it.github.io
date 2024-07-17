@@ -1,3 +1,4 @@
+/* Reset and box-sizing */
 *,
 *::before,
 *::after {
@@ -10,56 +11,15 @@
     vertical-align: baseline;
 }
 
+/* HTML5 display-role reset */
 article, aside, details, figcaption, figure,
 footer, header, hgroup, menu, nav, section {
-	display: block;}
+    display: block;
+}
 
 html {
-	box-sizing: border-box;
-	scroll-behavior: smooth;
-}
-
-body {
-	line-height: 1;
-}
-
-ol, ul {
-	list-style: none;
-}
-
-blockquote, q {
-	quotes: none;
-}
-
-	blockquote:before, blockquote:after, q:before, q:after {
-		content: '';
-		content: none;
-	}
-
-table {
-	border-collapse: collapse;
-	border-spacing: 0;
-}
-
-mark {
-	background-color: transparent;
-	color: inherit;
-}
-
-input::-moz-focus-inner {
-	border: 0;
-	padding: 0;
-}
-
-input, select, textarea {
-	-moz-appearance: none;
-	-webkit-appearance: none;
-	-ms-appearance: none;
-	appearance: none;
-}
-
-*, *:before, *:after {
-	box-sizing: inherit;
+    box-sizing: border-box;
+    scroll-behavior: smooth;
 }
 
 body {
@@ -78,21 +38,50 @@ body {
     text-align: center;
 }
 
+ol, ul {
+    list-style: none;
+}
+
+blockquote, q {
+    quotes: none;
+}
+blockquote:before, blockquote:after, q:before, q:after {
+    content: '';
+    content: none;
+}
+
+table {
+    border-collapse: collapse;
+    border-spacing: 0;
+}
+
+mark {
+    background-color: transparent;
+    color: inherit;
+}
+
+input::-moz-focus-inner,
+input, select, textarea {
+    border: 0;
+    padding: 0;
+    appearance: none;
+}
+
 h1, h2, h3, h4 {
     padding: 15px;
     font-family: Georgia, serif;
     font-style: italic;
-	font-weight: 800;
+    font-weight: 800;
     letter-spacing: 1px;
     word-spacing: 1px;
     line-height: 1.2em;
     text-shadow: 4px 4px 8px rgba(0, 0, 0, .9);
 }
 
-h1	{ font-size: 3em;		}
-h2	{ font-size: 2em;		}
-h3	{ font-size: 1.5em;		}
-p	{ line-height: 1.2em;	}
+h1 { font-size: 3em; }
+h2 { font-size: 2em; }
+h3 { font-size: 1.5em; }
+p { line-height: 1.2em; }
 
 h1, h2, h3, h4, p, li {
     transform: translateY(30px);
@@ -118,12 +107,29 @@ h1, h2, h3, h4, p, li {
     z-index: 1000;
 }
 
-#header > div { padding: 10px; text-shadow: 4px 4px 8px rgba(0, 0, 0, .9); display: flex; align-items: center; }
-#header > div > ul { list-style: none; display: flex; align-items: center; }
-#header > div > ul > li { margin: 0 10px; color: #66d3fa; }
+#header > div {
+    padding: 10px;
+    text-shadow: 4px 4px 8px rgba(0, 0, 0, .9);
+    display: flex;
+    align-items: center;
+}
+#header > div > ul {
+    list-style: none;
+    display: flex;
+    align-items: center;
+}
+#header > div > ul > li {
+    margin: 0 10px;
+    color: #66d3fa;
+}
 
-a { color: #66d3fa; text-decoration: none; }
-a:hover { color: #9ee5ff; }
+a {
+    color: #66d3fa;
+    text-decoration: none;
+}
+a:hover {
+    color: #9ee5ff;
+}
 
 #main {
     padding: 0;
@@ -131,14 +137,12 @@ a:hover { color: #9ee5ff; }
     border: 0;
     line-height: 0;
 }
-
 #main > div {
     height: 60vh;
     align-content: center;
     text-align: center;
     line-height: 16px;
 }
-
 #main > div > header {
     border: 1px solid #faebd7;
     padding: 5%;
@@ -150,204 +154,163 @@ a:hover { color: #9ee5ff; }
     box-shadow: 5px 10px #000;
     will-change: opacity;
 }
-
-@keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
+#main > div > header > ul{
+    padding: 1em;
 }
 
-#main > div > header > ul {
-    padding: 10px;
+#main > div > header a,
+#contact > div > p > a {
+    padding: 0.2em;
 }
 
-#main > div > header a {
-	cursor: pointer;
-	transition: filter 0.1s ease;
-}
-
-#main > div > header a:hover{
+#main > div > header a:hover,
+#contact > div > p > a:hover,
+.collapsible.active img,
+.collapsible.collapsible:hover img {
     filter: invert(51%) sepia(45%) saturate(2760%) hue-rotate(166deg) brightness(100%) contrast(99%);
 }
-
-#main > div > header img{
+#main > div > header img,
+#contact img {
     height: 1.2em;
     width: auto;
 }
 
-#main > svg {
-    margin: 0px;
-    padding: 0px;
-	width: 100%;
-	filter: drop-shadow(20px 0px 0px rgb(0 0 0 / 0.8))
+#main > svg,
+footer > svg {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    filter: drop-shadow(20px 0 0 rgb(0 0 0 / 0.8));
 }
 
 #portfolio {
     background: linear-gradient(to bottom, #414345, #232526);
-	margin: 0px;
-	padding: 0px;
-	justify-content: center;
+    margin: 0;
+    padding: 0;
+    justify-content: center;
     text-align: left;
 }
 
 .projects {
-	margin: 20px;
-	background: rgba(0, 0, 0, 0.5);
-	height: 100%;
-	display: flex;
-	justify-content: center;
+    margin: 20px;
+    background: rgba(0, 0, 0, 0.5);
+    height: 100%;
+    display: flex;
+    justify-content: center;
     align-items: center;
 }
-
 @media (max-width: 800px) {
-	.projects {
-	  flex-direction: column;
-	  align-items: center;
-	}
-	.projects .image {
-		width: 100%;
-	}
+    .projects {
+        flex-direction: column;
+        align-items: center;
+    }
+    .projects .image {
+        width: 100%;
+    }
 }
 
 section.image {
     margin: 10px;
-	width: 250px;
-	height: 250px;
-	overflow: hidden;
-	position: relative;
-	box-sizing: border-box;
-	transition: transform 0.3s, box-shadow 0.3s;
+    width: 250px;
+    height: 250px;
+    overflow: hidden;
+    position: relative;
+    box-sizing: border-box;
+    transition: transform 0.3s, box-shadow 0.3s;
 }
-
 section.image img {
-	position: absolute;
-	top: 50%;
-	left: 50%;
-	transform: translate(-50%, -50%);
-	width: auto;
-	height: 100%;
-	object-fit: cover;
-	transition: filter 0.3s;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: auto;
+    height: 100%;
+    object-fit: cover;
+    transition: filter 0.3s;
 }
-
 .image:hover {
-	box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
 }
-  
 .image:hover img {
-	filter: brightness(1.2);
+    filter: brightness(1.2);
 }
 
 .description {
     padding: 10px;
-	width:100%;
+    width: 100%;
 }
-
-.description h3 {
-	padding: 10px 0px;
-}
-
-.description p {
-    padding: 5px 0px;
-}
-
-.description ul {
-	padding: 5px 0px;
-}
-
+.description h3,
+.description p,
+.description ul,
 .description ul li {
-	padding: 3px 0px;
+    padding: 5px 0;
 }
 
 #about {
     background: linear-gradient(to bottom, #232526, #414345);
     text-align: left;
 }
-
 #about p {
-	padding: 10px;
+    padding: 10px;
+}
+#about li {
+    margin-left: 30px;
+    padding: 5px;
 }
 
 .icons {
-	filter: invert(96%) sepia(4%) saturate(2581%) hue-rotate(311deg) brightness(105%) contrast(96%);
-	width:18px;
-	height:18px;
-}
-
-#about li {
-	margin-left: 30px;
-	padding: 5px;
+    filter: invert(96%) sepia(4%) saturate(2581%) hue-rotate(311deg) brightness(105%) contrast(96%);
+    width: 18px;
+    height: 18px;
 }
 
 .collapsible {
-	cursor: pointer;
-	user-select: none;
+    cursor: pointer;
+    user-select: none;
     padding: 10px;
-	color: #66d3fa;
+    color: #66d3fa;
 }
-
 .collapsible img {
     transition: filter 0.1s ease;
 }
-
-.collapsible.active img, .collapsible.collapsible:hover img{
-    filter: invert(51%) sepia(45%) saturate(2760%) hue-rotate(166deg) brightness(100%) contrast(99%);
-}
-
 .content {
-	max-height: 0;
-	opacity: 0;
-	overflow: hidden;
-	transition: max-height 0.3s ease-out, opacity 0.3s ease-out;
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease-out, opacity 0.3s ease-out;
 }
-
 .collapsible.active + .content {
-	max-height: 100px; /* Adjust this value based on the content */
-	opacity: 1;
-}
-
-footer > svg {
-	filter: drop-shadow(5px 8px 5px rgb(0 0 0 / 0.8))
+    max-height: 100px;
+    opacity: 1;
 }
 
 #contact {
     position: relative;
     height: 80vh;
 }
-
 #contact > svg {
-    position:absolute;
+    position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: auto;
     z-index: -1;
 }
-
 #contact > div {
-	border-radius: 5px;
+    border-radius: 5px;
     position: absolute;
     margin-top: 25vh;
-	align-content: center;
-	background: rgba(0, 0, 0, 0.9);
-    border:#414345 solid 1px;
+    align-content: center;
+    background: rgba(0, 0, 0, 0.9);
+    border: #414345 solid 1px;
     height: 50vh;
     width: 100%;
 }
-
 #contact > div > p {
-	padding: 10px;
+    padding: 10px;
 }
 
-#contact > div > p > a {
-	cursor: pointer;
-	transition: filter 0.1s ease;
-}
-
-#contact > div > p > a:hover{
-    filter: invert(51%) sepia(45%) saturate(2760%) hue-rotate(166deg) brightness(100%) contrast(99%);
-}
-
-#contact img{
-    height: 1.2em;
-    width: auto;
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
 }
